@@ -119,3 +119,80 @@ fn main() {
     let _ = disable_raw_mode();
     execute!(stdout, cursor::Show).unwrap();
 }
+
+pub fn init_terminal(args: &Config) {
+    let mut stdout = stdout();
+    execute!(stdout, Clear(terminal::ClearType::All)).unwrap();
+    draw_base(args);
+}
+
+// returns true if the tree finished drawing. Returns false if it didn't and
+// the user chose to exit early
+pub fn draw_tree(config: &Config, tree: &Vec<Val>) -> bool {
+    let mut stdout = stdout();
+    for val in tree {
+        if config.verbose {
+            // Queueing the commands instead of executing them immediately
+            // This allows for batching the writes, which can be more efficient
+            stdout
+                .queue(MoveTo(5, 3))
+                .unwrap()
+                .queue(Print(format!("life: {}", val.life)))
+                .unwrap()
+                .queue(MoveTo(5, 4))
+                .unwrap()
+                .queue(Print(format!("shoots: {:02}", val.shoots)))
+                .unwrap()
+                .queue(MoveTo(5, 5))
+                .unwrap()
+                .queue(Print(format!("dx: {:02}", val.dx)))
+                .unwrap()
+                .queue(MoveTo(5, 6))
+                .unwrap()
+                .queue(Print(format!("dy: {:02}", val.dy)))
+                .unwrap()
+                .queue(MoveTo(5, 7))
+                .unwrap()
+                .queue(Print(format!("type: {}", val.branch_type)))
+                .unwrap()
+                .queue(MoveTo(5, 8))
+                .unwrap()
+                .queue(Print(format!("shootCooldown: {:3}", val.shoot_cooldown)))
+                .unwrap();
+
+            // Flush the stdout to apply the queued operations
+            stdout.flush().unwrap();
+        }
+
+        let _ = execute!(
+            stdout,
+            SetAttribute(val.style.attribute),
+            SetForegroundColor(val.style.foreground_color),
+            SetBackgroundColor(val.style.background_color),
+        );
+        let _ = execute!(
+            stdout,
+            MoveTo(val.pos.x as u16, val.pos.y as u16),
+            Print(val.char.clone()),
+        );
+        // reset color
+        let _ = execute!(stdout, SetColors(Colors::new(Color::Reset, Color::Reset)),);
+        if config.live {
+            let start = Instant::now();
+            let mut finished = false;
+            while start.elapsed() < Duration::from_secs_f64(config.time) {
+                if check_key_press() {
+                    finished = true;
+                    break;
+                }
+                thread::sleep(Duration::from_millis(50)); // Sleep to avoid busy-waiting
+            }
+
+            if finished {
+                return false;
+            }
+        }
+    }
+
+    true
+}
