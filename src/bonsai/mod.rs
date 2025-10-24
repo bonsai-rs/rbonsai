@@ -44,10 +44,10 @@ pub struct Position {
 }
 
 pub struct TreeConfig {
-    max_x: u16,
-    max_y: u16,
-    life: i32,
-    multiplier: i32,
+    pub max_x: u16,
+    pub max_y: u16,
+    pub life: i32,
+    pub multiplier: i32,
 }
 
 pub fn grow_tree(config: &TreeConfig, rng: &mut StdRng) -> Vec<Val> {
