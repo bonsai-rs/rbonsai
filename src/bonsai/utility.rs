@@ -1,19 +1,16 @@
-use std::io::stdout;
-
-use crossterm::{
-    execute,
-    style::{Attribute, Color, SetAttribute, SetBackgroundColor, SetForegroundColor},
-};
 use rand::{rngs::StdRng, Rng};
-
-use crate::Config;
 
 use super::BranchType;
 
+pub enum FontStyle {
+    Reset,
+    Bold,
+}
+
 pub struct Style {
-    pub attribute: Attribute,
-    pub foreground_color: Color,
-    pub background_color: Color,
+    pub attribute: FontStyle,
+    pub foreground_color: u8,
+    pub background_color: u8,
 }
 
 pub(crate) fn set_deltas(
@@ -108,13 +105,7 @@ pub(crate) fn set_deltas(
     (dx, dy)
 }
 
-pub(crate) fn choose_string(
-    _conf: &Config,
-    branch_type: &BranchType,
-    life: i32,
-    dx: i32,
-    dy: i32,
-) -> String {
+pub(crate) fn choose_string(branch_type: &BranchType, life: i32, dx: i32, dy: i32) -> String {
     let mut branch_str = match branch_type {
         BranchType::Trunk => match (dx, dy) {
             (0, 0) => "/~".to_string(),
@@ -160,66 +151,35 @@ pub(crate) fn choose_color(
     branch_type: &BranchType,
     rng: &mut StdRng,
 ) -> Result<Style, std::io::Error> {
-    let mut stdout = stdout();
-
-    // Default background color
-    let bg = Color::Reset; // Using Reset to use terminal's default
     let mut style = Style {
-        attribute: Attribute::Reset,
-        foreground_color: Color::Reset,
-        background_color: bg,
+        attribute: FontStyle::Reset,
+        foreground_color: 0,
+        background_color: 0,
     };
 
     match branch_type {
         BranchType::Trunk | BranchType::ShootLeft | BranchType::ShootRight => {
             if rng.gen_range(0..2) == 0 {
-                style.attribute = Attribute::Bold;
-                style.foreground_color = Color::AnsiValue(11);
+                style.attribute = FontStyle::Bold;
+                style.foreground_color = 11;
             } else {
-                execute!(
-                    stdout,
-                    SetForegroundColor(Color::AnsiValue(3)),
-                    SetBackgroundColor(bg),
-                )?;
-                style.foreground_color = Color::AnsiValue(3);
+                style.foreground_color = 3;
             }
         }
         BranchType::Dying => {
             if rng.gen_range(0..10) == 0 {
-                execute!(
-                    stdout,
-                    SetAttribute(Attribute::Bold),
-                    SetForegroundColor(Color::AnsiValue(2)),
-                    SetBackgroundColor(bg),
-                )?;
-                style.attribute = Attribute::Bold;
-                style.foreground_color = Color::AnsiValue(2);
+                style.attribute = FontStyle::Bold;
+                style.foreground_color = 2;
             } else {
-                execute!(
-                    stdout,
-                    SetForegroundColor(Color::AnsiValue(2)),
-                    SetBackgroundColor(bg),
-                )?;
-                style.foreground_color = Color::AnsiValue(2);
+                style.foreground_color = 2;
             }
         }
         BranchType::Dead => {
             if rng.gen_range(0..3) == 0 {
-                execute!(
-                    stdout,
-                    SetAttribute(Attribute::Bold),
-                    SetForegroundColor(Color::AnsiValue(10)),
-                    SetBackgroundColor(bg),
-                )?;
-                style.attribute = Attribute::Bold;
-                style.foreground_color = Color::AnsiValue(10);
+                style.attribute = FontStyle::Bold;
+                style.foreground_color = 10;
             } else {
-                execute!(
-                    stdout,
-                    SetForegroundColor(Color::AnsiValue(10)),
-                    SetBackgroundColor(bg),
-                )?;
-                style.foreground_color = Color::AnsiValue(10);
+                style.foreground_color = 10;
             }
         }
     }

@@ -1,24 +1,53 @@
-use std::{
-    io::stdout,
-    thread,
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
-};
+fn main() {
+    todo!()
+}
 
-use clap::Parser;
-use crossterm::{
-    cursor::{self, MoveTo},
-    event::{self, Event, KeyEventKind},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use rand::{rngs::StdRng, SeedableRng};
-use rbonsai::{
-    bonsai::{
-        draw_tree, grow_tree, init,
-        utility::{check_key_press, create_message_window},
-    },
-    Config,
-};
+/*
+mod io;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+pub struct Config {
+    /// Whether the tree generation should pause after each step
+    /// to allow the user to watch it grow
+    #[arg(short, long, default_value_t = false)]
+    pub live: bool,
+    /// In live mode, wait time in seconds between each step of growth
+    #[arg(short, long, default_value_t = 0.03)]
+    pub time: f64,
+    /// Infinite mode: keep growing trees
+    #[arg(short, long, default_value_t = false)]
+    pub infinite: bool,
+    /// In infinite mode, the wait time in seconds between each tree
+    #[arg(short, long, default_value_t = 4.)]
+    pub wait: f64,
+    /// Screensaver mode: equivalent to -li and quit on any keypress
+    #[arg(short = 'S', long, default_value_t = false)]
+    pub screensaver: bool,
+    /// Attach message next to tree
+    #[arg(short, long)]
+    pub message: Option<String>,
+    /// Ascii art plant base to use.
+    #[arg(short, long, default_value_t = 1)]
+    pub base: u8,
+    /// The branch multiplier; higher -> less branches
+    #[arg(short = 'M', long, default_value_t = 3)]
+    pub multiplier: i32,
+    /// The starting life of the tree
+    /// higher -> bigger tree
+    #[arg(short = 'L', long, default_value_t = 32)]
+    pub life: i32,
+    /// Print tree to terminal when finished
+    #[arg(short, long, default_value_t = false)]
+    pub print: bool,
+    /// Random number seed for reproducable trees
+    #[arg(short, long)]
+    pub seed: Option<u64>,
+    /// Whether there should be debug prints
+    #[arg(short, long, default_value_t = false)]
+    pub verbose: bool,
+    // TODO: Add support for saving to file, loading from file
+}
 
 fn main() {
     let mut args = Config::parse();
@@ -119,80 +148,4 @@ fn main() {
     let _ = disable_raw_mode();
     execute!(stdout, cursor::Show).unwrap();
 }
-
-pub fn init_terminal(args: &Config) {
-    let mut stdout = stdout();
-    execute!(stdout, Clear(terminal::ClearType::All)).unwrap();
-    draw_base(args);
-}
-
-// returns true if the tree finished drawing. Returns false if it didn't and
-// the user chose to exit early
-pub fn draw_tree(config: &Config, tree: &Vec<Val>) -> bool {
-    let mut stdout = stdout();
-    for val in tree {
-        if config.verbose {
-            // Queueing the commands instead of executing them immediately
-            // This allows for batching the writes, which can be more efficient
-            stdout
-                .queue(MoveTo(5, 3))
-                .unwrap()
-                .queue(Print(format!("life: {}", val.life)))
-                .unwrap()
-                .queue(MoveTo(5, 4))
-                .unwrap()
-                .queue(Print(format!("shoots: {:02}", val.shoots)))
-                .unwrap()
-                .queue(MoveTo(5, 5))
-                .unwrap()
-                .queue(Print(format!("dx: {:02}", val.dx)))
-                .unwrap()
-                .queue(MoveTo(5, 6))
-                .unwrap()
-                .queue(Print(format!("dy: {:02}", val.dy)))
-                .unwrap()
-                .queue(MoveTo(5, 7))
-                .unwrap()
-                .queue(Print(format!("type: {}", val.branch_type)))
-                .unwrap()
-                .queue(MoveTo(5, 8))
-                .unwrap()
-                .queue(Print(format!("shootCooldown: {:3}", val.shoot_cooldown)))
-                .unwrap();
-
-            // Flush the stdout to apply the queued operations
-            stdout.flush().unwrap();
-        }
-
-        let _ = execute!(
-            stdout,
-            SetAttribute(val.style.attribute),
-            SetForegroundColor(val.style.foreground_color),
-            SetBackgroundColor(val.style.background_color),
-        );
-        let _ = execute!(
-            stdout,
-            MoveTo(val.pos.x as u16, val.pos.y as u16),
-            Print(val.char.clone()),
-        );
-        // reset color
-        let _ = execute!(stdout, SetColors(Colors::new(Color::Reset, Color::Reset)),);
-        if config.live {
-            let start = Instant::now();
-            let mut finished = false;
-            while start.elapsed() < Duration::from_secs_f64(config.time) {
-                if check_key_press() {
-                    finished = true;
-                    break;
-                }
-                thread::sleep(Duration::from_millis(50)); // Sleep to avoid busy-waiting
-            }
-
-            if finished {
-                return false;
-            }
-        }
-    }
-
-    true
-}
+*/

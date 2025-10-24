@@ -167,7 +167,7 @@ fn branch(
         }
 
         // Drawing the branch part
-        let branch_str = choose_string(config, &branch_type, life, dx, dy);
+        let branch_str = choose_string(&branch_type, life, dx, dy);
         // Example to set color, adjust as needed
         let style = choose_color(&branch_type, rng).unwrap();
         let type_str = match branch_type {
