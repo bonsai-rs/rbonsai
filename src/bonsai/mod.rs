@@ -70,7 +70,7 @@ pub fn grow_tree(config: &TreeConfig, rng: &mut StdRng) -> Vec<Val> {
         rng,
         Position {
             x: (config.max_x / 2) as i32,
-            y: config.max_y as i32,
+            y: (config.max_y as i32) - 1,
         },
         BranchType::Trunk,
         config.life,
