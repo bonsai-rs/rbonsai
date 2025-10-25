@@ -1,5 +1,6 @@
 pub mod utility;
 use rand::{rngs::StdRng, Rng};
+use serde::{Deserialize, Serialize};
 use utility::{choose_color, choose_string, set_deltas};
 
 use self::utility::Style;
@@ -43,6 +44,7 @@ pub struct Position {
     pub y: i32,
 }
 
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct TreeConfig {
     pub max_x: u16,
     pub max_y: u16,
